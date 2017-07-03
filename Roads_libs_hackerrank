@@ -1,0 +1,97 @@
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+public class Solution {
+    static class Graph{
+        public ArrayList<ArrayList<Integer>> adjlist;
+        int numNodes;
+        Graph(int numNodes){
+            adjlist = new ArrayList<ArrayList<Integer>>(numNodes );
+            for(int i =  0 ; i <= numNodes; i++){
+                adjlist.add(new ArrayList<Integer>());
+            }
+            this.numNodes = numNodes;
+        }
+        void addEdge(int src, int dest){
+            ArrayList<Integer> a = adjlist.get(src);
+            if(a == null) a = new ArrayList<Integer>();
+            a.add(dest);
+        }
+        ArrayList<Integer> get(int v){
+            return adjlist.get(v);
+        }
+        
+    }
+    static class CountCity{
+        int cities = 0;
+        void add(){
+            cities++;
+        }
+        int get(){
+            return cities;
+        }
+    }
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int q = in.nextInt();
+        for(int a0 = 0; a0 < q; a0++){
+            int n = in.nextInt();
+            int m = in.nextInt();
+            long costLib = in.nextLong();
+            long costRoad = in.nextLong();
+            Graph g = new Graph(n);
+            for(int a1 = 0; a1 < m; a1++){
+                int city_1 = in.nextInt();
+                int city_2 = in.nextInt();
+                g.addEdge(city_1,city_2);
+                g.addEdge(city_2,city_1);
+            }
+            long answer = 0;
+               if(costLib <= costRoad){
+                   answer = n*costLib;
+                   System.out.println(answer);
+                   continue;
+               } 
+            boolean []visited = new boolean[n + 1];
+            int components = 0;
+            ArrayList<CountCity> arr = new ArrayList<CountCity>();
+            for(int i =  1 ; i <= n; i++){
+                if(!visited[i]){
+                    CountCity c = new CountCity();
+                    dfs(i,visited,g,c);
+                    components++;
+            
+                    arr.add(c);
+                }
+            }
+            int len = arr.size();
+            long costOfLib = 0 , costOfRoad = 0,res = 0,totalroad = 0, totallib = 0;
+            for(CountCity c : arr){
+                costOfRoad = (c.get() - 1) * costRoad + costLib;
+             
+                res += costOfRoad;
+            }
+            
+            
+            System.out.println(res);
+        }
+    }
+    static void dfs(int v, boolean []visited,Graph g,CountCity c){
+        if(!visited[v]){
+            visited[v] = true;
+             // System.out.println(v + " " + c.get());
+            c.add();
+            ArrayList<Integer> a = g.get(v);
+            for(int vertex : a){
+                if(!visited[vertex]){
+                    dfs(vertex,visited,g,c);
+                }
+            }
+            
+            
+        }
+    }
+}
