@@ -1,0 +1,110 @@
+import java.io.*;
+import java.util.*;
+
+public class Solution {
+    static class Graph{
+        public ArrayList<ArrayList<Integer>> adjlist;
+        int numNodes;
+        Graph(int numNodes){
+            adjlist = new ArrayList<ArrayList<Integer>>(numNodes );
+            for(int i =  0 ; i <= numNodes; i++){
+                adjlist.add(new ArrayList<Integer>());
+            }
+            this.numNodes = numNodes;
+        }
+        void addEdge(int src, int dest){
+            ArrayList<Integer> a = adjlist.get(src);
+            if(a == null) a = new ArrayList<Integer>();
+            a.add(dest);
+        }
+        ArrayList<Integer> get(int v){
+            return adjlist.get(v);
+        }
+        
+    }
+    static class DisjointSet{
+        int parent;
+        int rank;
+        DisjointSet(int i){
+            parent = i;
+            rank = 0;
+        }
+        int getp(){
+            return parent;
+        }
+        int getr(){
+            return rank;
+        }
+    }
+    static int find(DisjointSet[] set , int i){
+        if(set[i].parent != i){
+            return find(set,set[i].parent);
+        }
+        return set[i].parent;
+    }
+    static void union(DisjointSet[] set ,int x1, int y1){
+       int x = find(set, x1);
+       int y = find(set, y1);
+        
+        if(set[x].rank < set[y].rank){
+            set[x].parent = y;
+        }else if(set[x].rank > set[y].rank){
+            set[y].parent = x;
+        }else{
+            set[y].parent = x;
+            set[x].rank++;
+        }
+        
+    }
+    public static void main(String[] args) throws Exception{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine()," ");
+        int n = Integer.parseInt(st.nextToken());
+        int p = Integer.parseInt(st.nextToken());
+        DisjointSet set[] = new  DisjointSet[n + 1];
+        for(int i = 0 ; i <= n ; i++){
+            set[i] = new DisjointSet(i);
+        }
+        HashMap<Integer,Integer> hm = new HashMap<>();
+        for(int i = 0 ; i < p ; i++){
+            st = new StringTokenizer(br.readLine()," ");
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+            int xroot = find(set,x);
+            int yroot = find(set,y);
+            if(xroot == yroot)continue;
+            union(set,xroot,yroot);
+        }
+        for(int i = 0 ; i < n ; i++){
+            int x = find(set,i);
+            if(hm.containsKey(x)){
+                hm.put(x,hm.get(x) + 1);
+            }else{
+                hm.put(x,1);
+            }
+        }
+        int[] arr = new int[hm.size()];
+        int k = 0;
+        int sum = 0;
+        for (Map.Entry<Integer, Integer> entry : hm.entrySet()) {
+            sum += entry.getValue();
+            arr[k++] = sum;
+            
+        }
+        //System.out.println(Arrays.toString(arr));
+       /* hm.forEach((key, value) -> {
+            sum += value;
+            arr[k++] = sum;
+        }); */
+        long ans = 0;
+        for(int j = 0; j < arr.length - 1; j++){
+            if(j == 0){
+            ans +=  (sum - arr[j]) * arr[j];
+                continue;
+            } 
+                
+            ans +=  (sum - arr[j]) * (arr[j] - arr[j-1]); 
+        }
+        System.out.println(ans);
+    }
+}
