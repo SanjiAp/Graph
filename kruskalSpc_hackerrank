@@ -1,0 +1,110 @@
+import java.io.*;
+import java.util.*;
+
+public class Solution {
+    static class Graph{
+        int nodes;
+        ArrayList<Edge> edgeList;
+        Graph(){
+            edgeList = new ArrayList<Edge>();
+        }
+        void adde(Edge e){
+            edgeList.add(e);
+        }
+        ArrayList<Edge> getList(){
+            return edgeList;
+        }
+    }
+    static class Edge implements Comparable<Edge>{
+        int src ,dest;
+        int wt;
+        Edge(int i, int j, int w){
+            src = i;
+            dest = j;
+            wt = w;
+        }
+        public int compareTo(Edge b){
+            return this.wt - b.wt;
+        }
+        int gets(){
+            return src;
+        }
+        int getd(){
+            return dest;
+        }
+        int getwt(){
+            return wt;
+        }
+    }
+    static class DisjointSet{
+        int parent;
+        int rank;
+        DisjointSet(int i){
+            rank = 0;
+            parent = i;
+        }
+        int getp(){
+            return parent;
+            
+        }
+        int getr(){
+            return rank;
+            
+        }
+    }
+    static int find(int i, DisjointSet[] set){
+        if(set[i].parent != i ){
+            return find(set[i].parent, set);
+        }
+        return set[i].parent;
+    }
+    static void union(int x, int y, DisjointSet[] set){
+        int xroot = find(x,set);
+        int yroot = find(y,set);
+        
+        if(set[xroot].rank < set[yroot].rank){
+            set[xroot].parent = yroot;
+        }else if(set[xroot].rank > set[yroot].rank){
+            set[yroot].parent = xroot;
+        }else{
+            set[yroot].parent = xroot;
+            set[xroot].rank++; 
+            
+        }
+        
+    }
+    public static void main(String[] args) throws Exception{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine()," ");
+        int nodes = Integer.parseInt(st.nextToken());
+        int edges = Integer.parseInt(st.nextToken());
+        
+        Graph g = new Graph();
+        DisjointSet[] set = new DisjointSet[nodes + 1];
+        for(int i = 0; i < nodes + 1; i++)set[i] = new DisjointSet(i);
+        for(int i = 0; i < edges; i++){
+            st = new StringTokenizer(br.readLine()," ");
+            int src = Integer.parseInt(st.nextToken());
+            int dest = Integer.parseInt(st.nextToken());
+            int wt = Integer.parseInt(st.nextToken());
+          
+            
+            g.adde(new Edge(src , dest, wt));
+           
+        }
+        ArrayList<Edge> edgeList = g.getList();
+        Collections.sort(edgeList);
+        int j = 0,ans = 0;
+        for(int i = 0; i < nodes - 1; ){
+            Edge e = edgeList.get(j++);
+            int x = find(e.src,set);
+            int y = find(e.dest,set);
+            if(x == y)continue;
+            union(x,y,set);
+            ans += e.getwt();
+            i++;
+            
+        }
+        System.out.println(ans);
+    }
+}
