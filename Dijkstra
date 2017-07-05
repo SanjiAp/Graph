@@ -1,0 +1,184 @@
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+public class Solution {
+    static class Graph{
+        int nodes;
+        ArrayList<ArrayList<Edge>> list;
+        Graph(int num){
+            list = new ArrayList<ArrayList<Edge>>();
+            for(int i = 0; i <= num + 1;i++)list.add(new ArrayList<Edge>());
+        }
+        ArrayList<Edge> getList(int i){
+            return list.get(i);
+        }
+    }
+    static class minNode{
+        int v;
+        int wt;
+        minNode(int node, int w){
+            v = node;
+            wt = w;
+        }
+    }
+    static class MinHeap{
+        int posHeap[];
+        minNode[] heap;
+        int size;
+        MinHeap(int n){
+            posHeap = new int[n + 1];
+            heap = new minNode[n + 1];
+            size = -1;
+        }
+        void add(minNode e){
+            heap[++size] = e;
+            posHeap[e.v] = size;
+            bottomUpHeapify(size);
+            
+            
+        }
+        void swap(int i,int j){
+            
+            int temp = posHeap[i];
+            
+            posHeap[i] = posHeap[j];
+            
+            posHeap[j] = temp;
+            minNode t = heap[i];
+            heap[i] = heap[j];
+            heap[j] = t;
+        }
+        void topDownHeapify(int node){
+            int smallest = node;
+            int left = 2*node + 1;
+            int right = 2*node + 2;
+            if(left <= size && heap[node].wt > heap[left].wt){
+                smallest = left;
+            }
+            if(right <= size && heap[node].wt > heap[right].wt){
+                smallest = right;
+            }
+            if(smallest != node){
+                swap(smallest,node);
+                topDownHeapify(smallest);
+                
+            }
+            
+            
+            
+        }
+         void bottomUpHeapify(int node){
+            int parent;
+            if(node == 0)return;
+            if(node % 2 == 0) parent = node / 2 - 1;
+            else parent = node / 2;
+            
+            if(parent >= 0 && heap[node].wt < heap[parent].wt){
+                swap(parent,node);
+                bottomUpHeapify(parent);
+            }
+            
+        }
+        void decreaseKey(int node,int wt){
+            int in = posHeap[node];
+            minNode t = new minNode(node,wt);
+            heap[in] = t;
+            bottomUpHeapify(in);
+        }
+        minNode extractMin(){
+            if(size < 0){
+                return null;
+            }
+            if(size == 0){
+                
+                size--;
+                return heap[0];
+            }
+            minNode t = heap[0];
+            
+            minNode l = heap[size - 1];
+            heap[0] = l;
+            size--;
+            topDownHeapify(0);
+            return t;
+        }
+        
+    }
+    static class Edge{
+        int src;
+        int dest;
+        int wt;
+        Edge(int s,int d, int w){
+            src = s;
+            dest = d;
+            wt = w;
+        }
+    }
+    static int getMin(long[] wt, boolean visited[]){
+        int x = 0;
+        for(int i = 1; i < wt.length; i++){
+            if(!visited[i] && wt[i] < wt[x])
+                x = i;
+        }
+        return x;
+    }
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int t = in.nextInt();
+        for(int a0 = 0; a0 < t; a0++){
+            int n = in.nextInt();
+            int m = in.nextInt();
+            Graph g = new Graph(n);
+            for(int a1 = 0; a1 < m; a1++){
+                int x = in.nextInt();
+                int y = in.nextInt();
+                ArrayList<Edge> arr = g.getList(x);
+                
+                int wt = in.nextInt();
+                arr.add(new Edge(x,y,wt));
+                arr =  g.getList(y);
+                arr.add(new Edge(y,x,wt));
+                
+            }
+            boolean visited[] = new boolean[n + 1];
+            int s = in.nextInt();
+            int wt[] = new int[n+1];
+            MinHeap heap = new MinHeap(n);
+            for(int i = 1 ; i < n+1; i++){
+                wt[i] = Integer.MAX_VALUE;
+                heap.add(new minNode(i,wt[i]));
+                
+            
+            }
+            wt[s] = 0;
+            for(int i = 0; i < n+1; i++){
+                minNode t1 = heap.extractMin();
+                if(t1 == null) break;
+                visited[t1.v] = true;
+                ArrayList<Edge> arr = g.getList(t1.v);
+                for(int j = 0; j < arr.size(); j++){
+                    int d = arr.get(j).dest;
+                    int w = arr.get(j).wt;
+                    if(!visited[d] && wt[t1.v] != Integer.MAX_VALUE && wt[d] > (wt[t1.v] + w)){
+                        wt[d] = wt[t1.v] + w;
+                        heap.decreaseKey(d,-100000);
+                        
+                        heap.extractMin();
+                        heap.add(new minNode(d,wt[d]));
+                    }
+                    // System.out.println(d+" "+minIndex+Arrays.toString(wt));
+                }
+               // System.out.println(Arrays.toString(wt));
+                
+            }
+            for(int i = 1; i < wt.length; i++){
+                if(i == s)continue;
+                System.out.print(wt[i] + " ");
+            }
+            
+        }
+    }
+}
