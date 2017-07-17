@@ -1,0 +1,63 @@
+//OWN min Heap implementation // half way
+
+import java.io.*;
+import java.util.*;
+
+public class Solution {
+    static class 
+static class minHeap{
+    int []arr;
+    int size = 0;
+    void swap(int p, int i, HashMap<Integer,Integer> hm){
+        int posp = hm.get(arr[p]);
+        int posi = hm.get(arr[i]);
+        hm.put(arr[p],posi);
+        hm.put(arr[i],posp);
+        int temp = arr[p];
+        arr[p] = arr[i];
+        arr[i] = temp;
+    }
+    void print(){
+        System.out.println(Arrays.toString(arr));
+    }
+    void add(int vertex,int wt, HashMap<Integer,Integer> hm){
+        hm.put(vertex,size);
+        arr[size] = vertex;
+        bottomUpHeapify(size,hm);
+    }
+    void bottomUpHeapify(int pos, HashMap<Integer,Integer> hm){
+        
+        while(pos > 0 && pos < size){
+            int parent = (pos - 1) / 2;
+            if(arr[parent] > arr[pos]){
+                swap(parent,pos);
+            }
+            pos = parent;
+        }
+    }
+    void topDownHeapify(int pos,  HashMap<Integer,Integer> hm){
+        while(pos < size){
+            int left = 2*pos + 1;
+            int right = 2*pos + 2;
+            int change = pos;
+            if(isSafe(left)){
+                change = arr[pos] > arr[left]? left:pos;
+            }
+            if(change == pos){
+                if(isSafe(right)){
+                    change = arr[pos] > arr[right]?right:pos;
+                }
+            }
+            if(change == pos ) break;
+            swap(pos,change);
+            pos = change;
+        }
+    }
+}
+    public static void main(String[] args) {
+        minHeap mh = new minHeap();
+        HashMap<Integer,Integer> hm = new HashMap<Integer,Integer>();
+        mh.add(1,hm);
+        
+    }
+}
